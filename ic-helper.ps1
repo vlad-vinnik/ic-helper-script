@@ -101,11 +101,11 @@ function Show-Help {
          When -force option is specified, do this without prompting for user confirmation.`n"
     Write-Host "pull:`n`tExecute git pull on all repositories. When -force option is specified, do force pulling."
     Write-Host "fetch:`n`tExecute git fetch on all repositories."
-    Write-Host "-help or /?:`n`tPrint this help and exit."
+    Write-Host "help or /?:`n`tPrint this help and exit."
 }
 
 
-if ($args.Length -eq 0 -or $args[0] -eq "-help" -or $args[0] -eq "/?") {
+if ($args.Length -eq 0 -or $args[0] -eq "help" -or $args[0] -eq "/?") {
     Show-Help -ScriptName $MyInvocation.MyCommand.Name
     exit 1
 }
