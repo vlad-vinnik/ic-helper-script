@@ -66,7 +66,20 @@ function Find-GitRepositories {
         [string]$command,
         [switch]$force
     )
-    $subdirs = Get-ChildItem -Path $path -Directory -Recurse
+
+ # Check if the path exists
+    if (-not (Test-Path $path)) {
+        Write-Error "The specified path '$path' does not exist."
+         return
+    }
+
+    try {
+        $subdirs = Get-ChildItem -Path $path -Directory -Recurse
+    }
+    catch {
+        Write-Error "An error occurred while retrieving subdirectories: $($_.Exception.Message)"
+        return
+    }
 
     foreach ($dir in $subdirs) {
         $gitDir = Join-Path $dir.FullName ".git"
@@ -74,13 +87,13 @@ function Find-GitRepositories {
             Write-Host -ForegroundColor Blue "`nFound git repository at $($dir.FullName)"
             switch ( $command ) {
                 "clean" { Test-GitRepositoryClean -directory $dir.FullName -force:$force }
-                "fetch" { 
+                "fetch" {
                     Invoke-GitFetch -directory $dir.FullName
-                    Get-CommandStatus -command $command 
-                }
-                "pull"  { 
-                    Invoke-GitPull -directory $dir.FullName -force:$force
                     Get-CommandStatus -command $command
+                }
+                "pull"  {
+                   Invoke-GitPull -directory $dir.FullName -force:$force
+                   Get-CommandStatus -command $command
                 }
                 default { throw "${command}: command not found." }
             }
