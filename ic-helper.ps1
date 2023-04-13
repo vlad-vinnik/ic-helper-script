@@ -66,25 +66,45 @@ function Find-GitRepositories {
         [string]$command,
         [switch]$force
     )
+
+ # Check if the path exists
+
+$foundRepository = $false
+
+try {
+    if (-not (Test-Path $path)) {
+        throw "The specified path '$path' does not exist."
+    }
     $subdirs = Get-ChildItem -Path $path -Directory -Recurse
+}
+
+catch {
+    Write-Error "An error occurred while retrieving subdirectories: $($_.Exception.Message)"
+    exit 1
+}
 
     foreach ($dir in $subdirs) {
         $gitDir = Join-Path $dir.FullName ".git"
         if (Test-Path $gitDir) {
+            $foundRepository = $true
             Write-Host -ForegroundColor Blue "`nFound git repository at $($dir.FullName)"
             switch ( $command ) {
                 "clean" { Test-GitRepositoryClean -directory $dir.FullName -force:$force }
-                "fetch" { 
+                "fetch" {
                     Invoke-GitFetch -directory $dir.FullName
-                    Get-CommandStatus -command $command 
-                }
-                "pull"  { 
-                    Invoke-GitPull -directory $dir.FullName -force:$force
                     Get-CommandStatus -command $command
+                }
+                "pull"  {
+                   Invoke-GitPull -directory $dir.FullName -force:$force
+                   Get-CommandStatus -command $command
                 }
                 default { throw "${command}: command not found." }
             }
         }
+    }
+
+    if (!$foundRepository) {
+        Write-Host -ForegroundColor White "No Git repositories were found in directory $path"
     }
 }
 
@@ -101,11 +121,10 @@ function Show-Help {
          When -force option is specified, do this without prompting for user confirmation.`n"
     Write-Host "pull:`n`tExecute git pull on all repositories. When -force option is specified, do force pulling."
     Write-Host "fetch:`n`tExecute git fetch on all repositories."
-    Write-Host "-help or /?:`n`tPrint this help and exit."
+    Write-Host "help or /?:`n`tPrint this help and exit."
 }
 
-
-if ($args.Length -eq 0 -or $args[0] -eq "-help" -or $args[0] -eq "/?") {
+if ($args.Length -eq 0 -or $args[0] -eq "help" -or $args[0] -eq "/?") {
     Show-Help -ScriptName $MyInvocation.MyCommand.Name
     exit 1
 }
