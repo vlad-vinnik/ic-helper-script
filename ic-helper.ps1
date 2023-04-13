@@ -72,17 +72,15 @@ function Find-GitRepositories {
 $foundRepository = $false
 
 try {
-    if (-not (Test-Path $path)) {
-        throw "The specified path '$path' does not exist."
-    }
-    $subdirs = Get-ChildItem -Path $path -Directory -Recurse
+    $subdirs = Get-ChildItem -Path $path -Directory -Recurse -ErrorAction Stop
+} catch [System.Management.Automation.ItemNotFoundException] {
+    # Catch if the specified path exists, and throw an error if it doesn't
+    throw "The specified path '$path' does not exist."
+} catch {
+    # Catch any other exception that might occur
+    Write-Error "The specified path '$path' does not exist."
+ exit 1
 }
-
-catch {
-    Write-Error "An error occurred while retrieving subdirectories: $($_.Exception.Message)"
-    exit 1
-}
-
     foreach ($dir in $subdirs) {
         $gitDir = Join-Path $dir.FullName ".git"
         if (Test-Path $gitDir) {
@@ -104,6 +102,7 @@ catch {
     }
 
     if (!$foundRepository) {
+        # If no repository was found it returns a message stating that the any repository was found in the specified path
         Write-Host -ForegroundColor White "No Git repositories were found in directory $path"
     }
 }
