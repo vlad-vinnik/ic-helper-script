@@ -99,8 +99,13 @@ function Find-GitRepositories {
                     Get-CommandStatus -command $command
                 }
                 "pull" {
-                    Invoke-GitPull -directory $dir.FullName -force:$force
-                    Get-CommandStatus -command $command
+                    $cmdOutput = Invoke-GitPull -directory $dir.FullName -force:$force
+                    if ($cmdOutput -notcontains "Already up to date.") {
+                        Get-CommandStatus -command $command
+                    }
+                    else {
+                        Write-Host -ForegroundColor Green $cmdOutput
+                    }
                 }
             }
         }
