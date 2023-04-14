@@ -1,6 +1,6 @@
 function Test-GitRepositoryClean {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$directory,
         [switch]$force
     )
@@ -12,27 +12,30 @@ function Test-GitRepositoryClean {
         if ($force) {
             git -C $directory clean -xfd
             Get-CommandStatus -command "clean"
-        } else {
+        }
+        else {
             $response = Read-Host "Would you like to clean this repository? (Y/N)"
             if ($response -eq "Y" -or $response -eq "y") {
                 git -C $directory clean -xfd
                 Get-CommandStatus -command "clean"
             }
         }
-    } else {
+    }
+    else {
         Write-Host -ForegroundColor Green "This repository is clean."
     }
 }
 
 function Get-CommandStatus {
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$command
     )
 
     if ($LASTEXITCODE -eq 0) {
         Write-Host -ForegroundColor Green "Successfully $($command)ed the repository."
-    } else {
+    }
+    else {
         $titleCase = (Get-Culture).TextInfo.ToTitleCase($command)
         Write-Host -ForegroundColor Yellow "$titleCase finished with errors, see messages above."
     }
@@ -40,7 +43,7 @@ function Get-CommandStatus {
 
 function Invoke-GitFetch {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$directory
     )
     git -C $directory fetch
@@ -48,39 +51,42 @@ function Invoke-GitFetch {
 
 function Invoke-GitPull {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$directory,
         [switch]$force
     )
     if ($force) {
         git -C $directory pull --force
-    } else {
+    }
+    else {
         git -C $directory pull
     }
 }
 
 function Find-GitRepositories {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$path,
         [string]$command,
         [switch]$force
     )
 
- # Check if the path exists
+    # Check if the path exists
 
-$foundRepository = $false
+    $foundRepository = $false
 
-try {
-    $subdirs = Get-ChildItem -Path $path -Directory -Recurse -ErrorAction Stop
-} catch [System.Management.Automation.ItemNotFoundException] {
-    # Catch if the specified path exists, and throw an error if it doesn't
-    throw "The specified path '$path' does not exist."
-} catch {
-    # Catch any other exception that might occur
-    Write-Error "The specified path '$path' does not exist."
- exit 1
-}
+    try {
+        $subdirs = Get-ChildItem -Path $path -Directory -Recurse -ErrorAction Stop
+    }
+    catch [System.Management.Automation.ItemNotFoundException] {
+        # Catch if the specified path exists, and throw an error if it doesn't
+        throw "The specified path '$path' does not exist."
+    }
+    catch {
+        # Catch any other exception that might occur
+        Write-Error "The specified path '$path' does not exist."
+        exit 1
+    }
     foreach ($dir in $subdirs) {
         $gitDir = Join-Path $dir.FullName ".git"
         if (Test-Path $gitDir) {
@@ -92,11 +98,10 @@ try {
                     Invoke-GitFetch -directory $dir.FullName
                     Get-CommandStatus -command $command
                 }
-                "pull"  {
-                   Invoke-GitPull -directory $dir.FullName -force:$force
-                   Get-CommandStatus -command $command
+                "pull" {
+                    Invoke-GitPull -directory $dir.FullName -force:$force
+                    Get-CommandStatus -command $command
                 }
-                default { throw "${command}: command not found." }
             }
         }
     }
@@ -109,7 +114,7 @@ try {
 
 function Show-Help {
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$ScriptName
     )
 
@@ -124,6 +129,13 @@ function Show-Help {
 }
 
 if ($args.Length -eq 0 -or $args[0] -eq "help" -or $args[0] -eq "/?") {
+    Show-Help -ScriptName $MyInvocation.MyCommand.Name
+    exit 0
+}
+
+$allowedCommands = @("clean", "pull", "fetch")
+if ($allowedCommands -notcontains $args[0]) {
+    Write-Host -ForegroundColor Red "$($args[0]): command not found.`n"
     Show-Help -ScriptName $MyInvocation.MyCommand.Name
     exit 1
 }
