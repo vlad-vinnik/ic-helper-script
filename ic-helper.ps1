@@ -71,23 +71,23 @@ function Find-GitRepositories {
         [switch]$force
     )
 
-    # Check if the path exists
-
     $foundRepository = $false
 
     try {
         $subdirs = Get-ChildItem -Path $path -Directory -Recurse -ErrorAction Stop
     }
     catch {
-        # Catch any other exception that might occur
         Write-Error "The specified path '$path' does not exist or cannot be accessed."
         exit 1
     }
+
     foreach ($dir in $subdirs) {
         $gitDir = Join-Path $dir.FullName ".git"
+
         if (Test-Path $gitDir) {
             $foundRepository = $true
             Write-Host -ForegroundColor Blue "`nFound git repository at $($dir.FullName)"
+
             switch ( $command ) {
                 "clean" { Test-GitRepositoryClean -directory $dir.FullName -force:$force }
                 "fetch" {
@@ -108,7 +108,7 @@ function Find-GitRepositories {
     }
 
     if (!$foundRepository) {
-        # If no repository was found it returns a message stating that the any repository was found in the specified path
+        # If no repository was found it returns a corresponding message
         Write-Host -ForegroundColor White "No Git repositories were found in directory $path"
     }
 }
