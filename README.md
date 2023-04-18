@@ -26,4 +26,4 @@ The script consists of six functions:
 
 ## Author
 
-Vlad Vinnik [vladislav.vinnik@wolterskluwer.com](<mailto:vladislav.vinnik@wolterskluwer.com](mailto:)>)
+Vlad Vinnik [vladislav.vinnik@wolterskluwer.com](mailto:vladislav.vinnik@wolterskluwer.com)
