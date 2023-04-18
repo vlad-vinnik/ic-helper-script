@@ -11,7 +11,7 @@ IC Helper Script scans for Git repositories at a given path and performs various
 - `clean`: Execute `git clean -xfd` on all repositories. When `-force` option is specified, do this without prompting for user confirmation.
 - `pull`: Execute `git pull` on all repositories. When `-force` option is specified, do force pulling.
 - `fetch`: Execute `git fetch` on all repositories.
-- `-help` or `/?`: Print help information and exit.
+- `help` or `/?`: Print help information and exit.
 
 ## Functional Overview
 
@@ -26,4 +26,4 @@ The script consists of six functions:
 
 ## Author
 
-Vlad Vinnik [vladislav.vinnik@wolterskluwer.com](<mailto:vladislav.vinnik@wolterskluwer.com](mailto:)>)
+Vlad Vinnik [vladislav.vinnik@wolterskluwer.com](mailto:vladislav.vinnik@wolterskluwer.com)
